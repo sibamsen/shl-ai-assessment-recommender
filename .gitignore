@@ -4,5 +4,3 @@ __pycache__/
 *.pyc
 .ipynb_checkpoints/
 *.log
-data/embeddings/
-data/faiss_index/
