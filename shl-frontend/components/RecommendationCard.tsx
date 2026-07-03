@@ -230,6 +230,7 @@ export default function RecommendationCard({
 
       <a
         href={url}
+        onClick={() => console.log("Assessment URL:", url)}
         target="_blank"
         rel="noopener noreferrer"
         className="
