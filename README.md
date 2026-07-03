@@ -262,18 +262,6 @@ Returns
 
 ---
 
-# 📸 Screenshots
-
-Add these screenshots after uploading them to GitHub.
-
-- Homepage
-- Chat Interface
-- Recommendation Cards
-- Swagger API
-- Railway Deployment
-- Vercel Deployment
-
----
 
 # ⚠ Known Limitation
 
