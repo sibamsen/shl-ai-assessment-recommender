@@ -23,6 +23,9 @@ class Recommendation(BaseModel):
     name: str = Field(..., description="Exact name of the assessment")
     url: str = Field(..., description="Link to the assessment in the catalog")
     test_type: str = Field(..., description="Comma-separated test type code(s), e.g. 'P', 'K, S'")
+    duration: str = Field(..., description="Assessment duration")
+    languages: List[str] = Field(..., description="Supported languages")
+    keys: List[str] = Field(..., description="Assessment competencies or key areas")
 
 
 class ChatResponse(BaseModel):
@@ -57,7 +60,10 @@ async def chat(request: ChatRequest, req: Request):
                 Recommendation(
                     name=rec["name"],
                     url=rec["url"],
-                    test_type=rec["test_type"]
+                    test_type=rec["test_type"],
+                    duration=rec["duration"],
+                    languages=rec["languages"],
+                    keys=rec["keys"],
                 )
                 for rec in response["recommendations"]
             ],

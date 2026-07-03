@@ -3,7 +3,7 @@ Conversation Manager for SHL Assessment Recommender.
 """
 
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List
 
 from app.models.assessment import Assessment
 from app.data.loader import load_catalog
@@ -19,63 +19,31 @@ class ConversationManager:
 
         self.recommender = RecommendationService()
 
-    def format_markdown_table(self, items: List[Assessment]) -> str:
-
-        if not items:
-            return ""
-
-        lines = [
-            "| # | Name | Test Type | Keys | Duration | Languages | URL |",
-            "|---|------|-----------|------|----------|-----------|-----|",
-        ]
-
-        for idx, item in enumerate(items, start=1):
-
-            keys = ", ".join(item.keys)
-
-            duration = item.duration or "—"
-
-            if not item.languages:
-                languages = "—"
-
-            elif len(item.languages) > 4:
-
-                languages = (
-                    ", ".join(item.languages[:4])
-                    + f" _(+{len(item.languages)-4} more)_"
-                )
-
-            else:
-
-                languages = ", ".join(item.languages)
-
-            lines.append(
-                f"| {idx} | {item.name} | "
-                f"{item.test_type_str} | "
-                f"{keys} | "
-                f"{duration} | "
-                f"{languages} | "
-                f"<{item.link}> |"
-            )
-
-        return "\n\n" + "\n".join(lines)
-
     def process_chat(self, history):
 
         query = history[-1]["content"].lower()
 
         purpose_words = [
-            "hire", "hiring", "selection",
-            "recruit", "development",
-            "360", "feedback"
+            "hire",
+            "hiring",
+            "selection",
+            "recruit",
+            "development",
+            "360",
+            "feedback",
         ]
 
         role_words = [
-            "graduate", "intern",
-            "manager", "executive",
-            "engineer", "developer",
-            "analyst", "sales",
-            "leader", "director"
+            "graduate",
+            "intern",
+            "manager",
+            "executive",
+            "engineer",
+            "developer",
+            "analyst",
+            "sales",
+            "leader",
+            "director",
         ]
 
         has_purpose = any(x in query for x in purpose_words)
@@ -83,40 +51,51 @@ class ConversationManager:
 
         if not has_purpose:
             return {
-                "reply": "Before I recommend assessments, are these for hiring (selection), employee development, or 360 feedback?",
+                "reply": (
+                    "Before I recommend SHL assessments, "
+                    "are these for hiring (selection), employee development, "
+                    "or 360 feedback?"
+                ),
                 "recommendations": [],
                 "end_of_conversation": False,
             }
 
         if not has_role:
             return {
-                "reply": "What is the target role or seniority (e.g. Graduate, Manager, Executive, Software Engineer)?",
+                "reply": (
+                    "What is the target role or seniority? "
+                    "For example: Graduate, Software Engineer, "
+                    "Manager or Executive."
+                ),
                 "recommendations": [],
                 "end_of_conversation": False,
             }
 
         retrieved = self.recommender.recommend(query)
 
-        assessments = []
         recommendations = []
 
         for item in retrieved:
 
             assessment = Assessment(**item)
 
-            assessments.append(assessment)
-
             recommendations.append(
                 {
                     "name": assessment.name,
                     "url": assessment.link,
                     "test_type": assessment.test_type_str,
+                    "duration": assessment.duration,
+                    "languages": assessment.languages,
+                    "keys": assessment.keys,
                 }
             )
 
-        reply = "Based on your requirements, here are the most relevant SHL assessments."
-
-        reply += self.format_markdown_table(assessments)
+        reply = (
+            f"I found {len(recommendations)} SHL assessments "
+            "that best match your hiring requirements.\n\n"
+            "You can review each recommendation below and "
+            "open the assessment directly from its card."
+        )
 
         return {
             "reply": reply,
